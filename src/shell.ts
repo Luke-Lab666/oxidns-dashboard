@@ -2,6 +2,7 @@ import { conn, forgetConn, get, post, req, saveConn, setUnauthorizedHandler, typ
 import { loadBuild, loadConfig, state } from "./state";
 import { $, confirmDialog, dur, errMsg, esc, icon, toast } from "./ui";
 import type { Page } from "./pages/page";
+import { initAppearance, openPopover, onChange, resolvedMode, setMode } from "./appearance";
 import { overview } from "./pages/overview";
 import { queries } from "./pages/queries";
 import { cache } from "./pages/cache";
@@ -24,28 +25,9 @@ let cleanup: (() => void) | void;
 let current = "";
 let healthTimer: number | undefined;
 
-// ---------- theme ----------
-function applyTheme(t: string) {
-  document.documentElement.dataset.theme = t;
-  try {
-    localStorage.setItem("oxidns-dashboard.theme", t);
-  } catch {
-    /* ignore */
-  }
-}
-function initTheme() {
-  let t = "";
-  try {
-    t = localStorage.getItem("oxidns-dashboard.theme") ?? "";
-  } catch {
-    /* ignore */
-  }
-  applyTheme(t || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
-}
-
 // ---------- boot ----------
 export async function boot() {
-  initTheme();
+  initAppearance();
   setUnauthorizedHandler(() => showLogin("登录已失效，请重新输入凭据"));
   try {
     await req<Health>("GET", "/health", { silent401: true });
@@ -143,15 +125,17 @@ function renderShell() {
           <div class="spacer"></div>
           <div class="reload-state hidden" id="reload-state"></div>
           <button class="icon-btn" id="btn-reload" title="热重载配置">${icon("refresh")}</button>
-          <button class="icon-btn" id="btn-theme" title="切换主题">${icon(document.documentElement.dataset.theme === "light" ? "moon" : "sun")}</button>
+          <button class="icon-btn" id="btn-style" title="外观风格">${icon("palette")}</button>
+          <button class="icon-btn" id="btn-theme" title="切换明暗">${icon(resolvedMode() === "light" ? "moon" : "sun")}</button>
         </header>
         <div class="content" id="content"></div>
       </main>
     </div>`;
-  $("#btn-theme")!.addEventListener("click", () => {
-    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    applyTheme(next);
-    $("#btn-theme")!.innerHTML = icon(next === "light" ? "moon" : "sun");
+  $("#btn-theme")!.addEventListener("click", () => setMode(resolvedMode() === "light" ? "dark" : "light"));
+  $("#btn-style")!.addEventListener("click", (e) => openPopover(e.currentTarget as HTMLElement));
+  onChange(() => {
+    const b = $("#btn-theme");
+    if (b) b.innerHTML = icon(resolvedMode() === "light" ? "moon" : "sun");
   });
   $("#btn-reload")!.addEventListener("click", async () => {
     try {

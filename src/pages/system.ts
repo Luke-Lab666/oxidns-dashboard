@@ -3,6 +3,7 @@ import { state } from "../state";
 import { $, confirmDialog, dur, errMsg, esc, icon, time, toast } from "../ui";
 import { logout, restart, watchReload } from "../shell";
 import type { Page } from "./page";
+import { bindPicker, pickerHtml } from "../appearance";
 
 export const system: Page = {
   title: "系统",
@@ -20,6 +21,7 @@ export const system: Page = {
           </div>
         </div></div>
       </section>
+      <section class="card"><div class="card-h"><h2>${icon("palette")}外观</h2><span class="sub">保存在当前浏览器</span></div><div class="card-b" id="s-look"></div></section>
       <section class="grid-2">
         <div class="card"><div class="card-h"><h2>${icon("globe")}连接</h2></div><div class="card-b">
           <dl class="kv"><dt>API 地址</dt><dd class="mono brk">${esc(new URL(conn.base, location.href).href)}</dd><dt>认证</dt><dd>${conn.user ? `Basic · <span class="mono">${esc(conn.user)}</span>` : "无"}</dd></dl>
@@ -34,6 +36,11 @@ export const system: Page = {
           }
         </div></div>
       </section>`;
+
+    const look = $("#s-look", root)!;
+    const renderLook = () => (look.innerHTML = pickerHtml());
+    renderLook();
+    bindPicker(look, renderLook);
 
     get<SystemInfo>("/system")
       .then((s) => {
