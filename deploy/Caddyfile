@@ -1,0 +1,12 @@
+dns.example.lan {
+	root * /var/www/oxidns-dashboard
+	file_server
+	try_files {path} /index.html
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:9199 {
+			flush_interval -1
+			header_down -WWW-Authenticate
+		}
+	}
+}

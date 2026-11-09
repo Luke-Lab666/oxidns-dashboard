@@ -1,0 +1,23 @@
+{
+  "name": "oxidns-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A clean, standalone management dashboard for OxiDNS built on its HTTP API.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "mock": "node mock/server.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "typescript": "^7.0.2",
+    "vite": "^6.4.5",
+    "vite-plugin-singlefile": "^2.3.4"
+  },
+  "dependencies": {
+    "js-yaml": "^5.5.0"
+  }
+}
